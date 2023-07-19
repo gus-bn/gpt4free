@@ -13,7 +13,7 @@ url: str = 'https://ai.ls'
 model: str = 'gpt-3.5-turbo'
 supports_stream = True
 needs_auth = False
-working =  True
+working = True
 
 
 class Utils:
@@ -28,7 +28,7 @@ class Utils:
             'WI,2rU#_r:r~aF4aJ36[.Z(/8Rv93Rf',
             len(json_data['m'])
         )
-        
+
         return hashlib.sha256(base_string.encode()).hexdigest()
 
     def format_timestamp(timestamp: int) -> str:
@@ -39,7 +39,8 @@ class Utils:
         return str(e - n + r)
 
 
-def _create_completion(model: str, messages: list, temperature: float = 0.6, stream: bool = False, **kwargs):
+def _create_completion(model: str, messages: list,
+                       temperature: float = 0.0, stream: bool = False, **kwargs):
 
     headers = {
         'authority': 'api.caipacity.com',
@@ -74,20 +75,22 @@ def _create_completion(model: str, messages: list, temperature: float = 0.6, str
             'm': messages[-1]['content']})}
 
     json_data = json.dumps(separators=(',', ':'), obj={
-        'model': 'gpt-3.5-turbo',
-        'temperature': 0.6,
-        'stream': True,
-         'messages': messages} | sig)
+        'model': model,
+        'temperature': 0.1,
+        'stream': stream,
+        'messages': messages} | sig)
 
-    response = requests.post('https://api.caipacity.com/v1/chat/completions', 
+    response = requests.post('https://api.caipacity.com/v1/chat/completions',
                              headers=headers, data=json_data, stream=True)
 
     for token in response.iter_lines():
         if b'content' in token:
             completion_chunk = json.loads(token.decode().replace('data: ', ''))
             token = completion_chunk['choices'][0]['delta'].get('content')
-            if token != None:
+            if token is not None:
                 yield token
 
+
 params = f'g4f.Providers.{os.path.basename(__file__)[:-3]} supports: ' + \
-    '(%s)' % ', '.join([f"{name}: {get_type_hints(_create_completion)[name].__name__}" for name in _create_completion.__code__.co_varnames[:_create_completion.__code__.co_argcount]])
+    '(%s)' % ', '.join(
+        [f"{name}: {get_type_hints(_create_completion)[name].__name__}" for name in _create_completion.__code__.co_varnames[:_create_completion.__code__.co_argcount]])
