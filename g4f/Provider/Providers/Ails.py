@@ -40,7 +40,7 @@ class Utils:
 
 
 def _create_completion(model: str, messages: list,
-                       temperature: float = 0.0, stream: bool = False, **kwargs):
+                       temperature: float = 0.0, stream: bool = True, **kwargs):
 
     headers = {
         'authority': 'api.caipacity.com',
