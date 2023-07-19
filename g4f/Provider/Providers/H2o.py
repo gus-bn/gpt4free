@@ -19,11 +19,11 @@ models = {
 }
 
 def _create_completion(model: str, messages: list, stream: bool, **kwargs):
-    
+
     conversation = ''
     for message in messages:
         conversation += '%s: %s\n' % (message['role'], message['content'])
-    
+
     conversation += 'assistant: '
     session = requests.Session()
 
@@ -47,7 +47,8 @@ def _create_completion(model: str, messages: list, stream: bool, **kwargs):
         "activeModel": "h2oai/h2ogpt-gm-oasst1-en-2048-falcon-40b-v1",
         "searchEnabled": "true"
     }
-    response = session.post("https://gpt-gm.h2o.ai/settings", headers=headers, data=data)
+    response = session.post(
+        "https://gpt-gm.h2o.ai/settings", headers=headers, data=data)
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",
@@ -62,12 +63,13 @@ def _create_completion(model: str, messages: list, stream: bool, **kwargs):
     data = {
         "model": models[model]
     }
-    
-    conversation_id = session.post("https://gpt-gm.h2o.ai/conversation", headers=headers, json=data)
+
+    conversation_id = session.post(
+        "https://gpt-gm.h2o.ai/conversation", headers=headers, json=data)
     data = {
         "inputs": conversation,
         "parameters": {
-            "temperature": kwargs.get('temperature', 0.4),
+            "temperature": kwargs.get('temperature', 0.0),
             "truncate": kwargs.get('truncate', 2048),
             "max_new_tokens": kwargs.get('max_new_tokens', 1024),
             "do_sample": kwargs.get('do_sample', True),
@@ -83,12 +85,15 @@ def _create_completion(model: str, messages: list, stream: bool, **kwargs):
             "web_search_id": ""
         }
     }
-    
-    response = session.post(f"https://gpt-gm.h2o.ai/conversation/{conversation_id.json()['conversationId']}", headers=headers, json=data)
+
+    response = session.post(
+        f"https://gpt-gm.h2o.ai/conversation/{conversation_id.json()['conversationId']}", headers=headers, json=data)
     generated_text = response.text.replace("\n", "").split("data:")
     generated_text = json.loads(generated_text[-1])
-    
+
     return generated_text["generated_text"]
 
+
 params = f'g4f.Providers.{os.path.basename(__file__)[:-3]} supports: ' + \
-    '(%s)' % ', '.join([f"{name}: {get_type_hints(_create_completion)[name].__name__}" for name in _create_completion.__code__.co_varnames[:_create_completion.__code__.co_argcount]])
+    '(%s)' % ', '.join(
+        [f"{name}: {get_type_hints(_create_completion)[name].__name__}" for name in _create_completion.__code__.co_varnames[:_create_completion.__code__.co_argcount]])
