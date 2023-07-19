@@ -69,7 +69,7 @@ def _create_completion(model: str, messages: list, stream: bool, **kwargs):
     data = {
         "inputs": conversation,
         "parameters": {
-            "temperature": kwargs.get('temperature', 0.0),
+            "temperature": kwargs.get('temperature', 0.1),
             "truncate": kwargs.get('truncate', 2048),
             "max_new_tokens": kwargs.get('max_new_tokens', 1024),
             "do_sample": kwargs.get('do_sample', True),
